@@ -41,8 +41,8 @@ ${ECHO} -e "\nbuilding image ${UBI_VERSION}-${JMETER_VERSION}-${NOW} ..."
 
 podman build \
        --build-arg UBI_VERSION=${UBI_VERSION} \
-       --build-arg JDK_VERSION=${JDK_VERSION} \
-       --build-arg JMETER_VERSION=${JMETER_VERSION} \
+       --build-arg AJDK_VERSION=${JDK_VERSION} \
+       --build-arg AJMETER_VERSION=${JMETER_VERSION} \
        --build-arg TZ=${IMAGE_TIMEZONE} \
        -t "zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-${NOW}" . > podman-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log
 RESULT=$?

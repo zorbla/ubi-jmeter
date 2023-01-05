@@ -3,12 +3,7 @@
 
 MAINTAINER r@zorbla.de
 
-#
-# external parameters
-#
 ARG UBI_VERSION="8"
-ARG JDK_VERSION="17"
-ARG JMETER_VERSION="5.5"
 
 # unfortunately, the openjdk-xx-runtime:latest image cannot be used because:
 # 1) I want to update but the image has no dnf
@@ -17,6 +12,9 @@ ARG JMETER_VERSION="5.5"
 # therefore, I'm using the plain UBI and install java myself
 #
 FROM ubi${UBI_VERSION}:latest
+
+ARG JDK_VERSION="17"
+ARG JMETER_VERSION="5.5"
 
 ENV JMETER_HOME /opt/apache-jmeter-${JMETER_VERSION}
 ENV JMETER_CUSTOM_PLUGINS_FOLDER /plugins
@@ -27,9 +25,8 @@ ARG TZ="Europe/Berlin"
 ENV TZ ${TZ}
 RUN mkdir -p /opt \
  && dnf -y update \
- && dnf -y install java-17-openjdk-headless
+ && dnf -y install java-${JDK_VERSION}-openjdk-headless
 
-ARG JMETER_VERSION="5.5"
 #
 # ATTENTION: Before building, make sure jmeter is there
 #
