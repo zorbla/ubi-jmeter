@@ -14,6 +14,8 @@ else
     ECHO="echo"
 fi
 
+NOW=`date +%Y%m%d%H%M%S`
+
 ${ECHO} "********************************************************************"
 ${ECHO} "* Building docker image for Apache JMeter ${JMETER_VERSION}"
 ${ECHO} "*   based on"
@@ -32,28 +34,29 @@ if [ "$?" != "0" ] ; then
 fi
 ${ECHO} ${SHARESULT}
 cd - > /dev/null
+rm -rf apache-jmeter-${JMETER_VERSION}
 tar -xzf /tmp/apache-jmeter-${JMETER_VERSION}.tgz
-
+cd extra
+bash ./replace-extras.sh 5.5 >> ../log/build-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log
+cd ..
 
 # Example build line
-NOW=`date +%Y%m%d%H%M%S`
+
 ${ECHO} -e "\nbuilding image ${UBI_VERSION}-${JMETER_VERSION}-${NOW} ..."
 
 podman build \
        --build-arg UBI_VERSION=${UBI_VERSION} \
-       --build-arg AJDK_VERSION=${JDK_VERSION} \
-       --build-arg AJMETER_VERSION=${JMETER_VERSION} \
+       --build-arg JDK_VERSION=${JDK_VERSION} \
+       --build-arg JMETER_VERSION=${JMETER_VERSION} \
        --build-arg TZ=${IMAGE_TIMEZONE} \
-       -t "zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-${NOW}" . > podman-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log
+       -t "zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-${NOW}" . >> log/build-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log
 RESULT=$?
-HASH=`tail -1 podman-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log`
+HASH=`tail -1 log/build-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log`
 PREVHASH=`cat ${UBI_VERSION}-${JMETER_VERSION}-latest.hash 2>&1`
 
 if [ "${RESULT}" != "0" ] ; then
     ${ECHO} "Error on podman build for image ${UBI_VERSION}-${JMETER_VERSION}-${NOW}"
     exit 1
-else
-    rm podman-${UBI_VERSION}-${JMETER_VERSION}-${NOW}.log
 fi
 
 
@@ -71,6 +74,7 @@ else
     echo "podman push zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}" >> push-${NOW}.sh
     echo "podman tag  zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-${NOW} zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-latest" >> push-${NOW}.sh
     echo "podman push zorbla/ubi-jmeter:${UBI_VERSION}-${JMETER_VERSION}-latest" >> push-${NOW}.sh
+#    echo "podman push zorbla/ubi-jmeter --all-tags " >> push-${NOW}.sh
     echo "echo ${HASH} > ${UBI_VERSION}-${JMETER_VERSION}-latest.hash"  >> push-${NOW}.sh
 
     ${ECHO} -e "\n=> push-${NOW}.sh"
@@ -83,3 +87,4 @@ else
 fi
 
 
+rm -rf apache-jmeter-${JMETER_VERSION}

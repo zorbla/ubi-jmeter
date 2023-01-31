@@ -23,15 +23,12 @@ ENV JMETER_BIN	${JMETER_HOME}/bin
 # Update system and install jdk & unzip & jmeter
 ARG TZ="Europe/Berlin"
 ENV TZ ${TZ}
-RUN mkdir -p /opt \
- && dnf -y update \
- && dnf -y install java-${JDK_VERSION}-openjdk-headless
+RUN mkdir -p /opt && dnf -y update && dnf -y install java-${JDK_VERSION}-openjdk-headless
 
 #
 # ATTENTION: Before building, make sure jmeter is there
 #
 COPY apache-jmeter-${JMETER_VERSION}/ /opt/apache-jmeter-${JMETER_VERSION}/
-
 
 # Set global PATH such that "jmeter" command is found
 ENV PATH $PATH:$JMETER_BIN
